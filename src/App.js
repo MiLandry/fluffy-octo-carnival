@@ -1,45 +1,86 @@
 import React, { Component } from "react";
-import logo from "./logo.svg";
 import "./App.css";
 import Room from "./Room";
 import styled from "styled-components";
 
 const Button = styled.button`
   background-color: grey;
+  clear: both;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 80px;
+  height: 30px;
+  color: white;
 `;
+
+const defaultRoom = {
+  isDisabled: true,
+  adults: 1,
+  children: 0
+};
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {
+    const initialState = JSON.parse(window.localStorage.getItem("state"));
+
+    this.state = initialState || {
       rooms: [
-        { isDisabled: false },
-        { isDisabled: true },
-        { isDisabled: true },
-        { isDisabled: true }
+        { ...defaultRoom, isDisabled: false },
+        defaultRoom,
+        defaultRoom,
+        defaultRoom
       ]
     };
     this.onToggle = this.onToggle.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  onSubmit() {
+    window.localStorage.setItem("state", JSON.stringify(this.state));
+    console.log("");
+  }
+
+  handleChange(value, age, roomNumber) {
+    const rooms = this.state.rooms;
+    rooms[roomNumber - 1][age.toLowerCase()] = parseInt(value);
+
+    this.setState({ rooms });
   }
 
   onToggle(label, isToggledOn) {
+    const { rooms } = this.state;
     const roomNumber = parseInt(label[label.length - 1]);
-    const index = roomNumber - 1;
+    const selectedIndex = roomNumber - 1;
     let newRooms;
 
+    // If enabling, enable selected room and all the rooms before it
+    // , and disable the rest
     if (isToggledOn) {
-      // enable on all the rooms before and including
-      // the selected room, and disable the rest
-      newRooms = Array(index + 1)
-        .fill({ isDisabled: false })
-        .concat(Array(4 - index - 1).fill({ isDisabled: true }));
+      const newIsDisabledValues = Array(selectedIndex + 1)
+        .fill(false)
+        .concat(Array(4 - selectedIndex - 1).fill(true));
+
+      newRooms = rooms.map((room, i) => {
+        return { ...room, isDisabled: newIsDisabledValues[i] };
+      });
     }
-    // else {
-    //   // otherwise disable
-    //     newRooms = Array(index + 1)
-    //       .fill({ isDisabled: false })
-    //       .concat(Array(4 - index - 1).fill({ isDisabled: true }));
-    //   }
+
+    // If disabling, then reset the selected room to default
+    // and all the rooms after it
+    else {
+      newRooms = rooms.map((room, i) => {
+        if (selectedIndex <= i) {
+          return defaultRoom;
+        }
+        return room;
+      });
+    }
+
+    //the first room is always enabled
+    newRooms[0].isDisabled = false;
 
     this.setState({ rooms: newRooms });
   }
@@ -52,13 +93,16 @@ class App extends Component {
         roomNumber={index + 1}
         onToggle={this.onToggle}
         disabled={room.isDisabled}
+        adults={room.adults}
+        children={room.children}
+        handleChange={this.handleChange}
+        key={index}
       />
     ));
     return (
       <div className="App">
         {roomElements}
-        <br />
-        <Button>Submit</Button>
+        <Button onClick={this.onSubmit}>Submit</Button>
       </div>
     );
   }

@@ -1,1 +1,1 @@
-export const isAdult = str => (str === 'Adult')
+export const isAdult = str => (str === 'Adults')

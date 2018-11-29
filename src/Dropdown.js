@@ -1,61 +1,38 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import styled, { css } from 'styled-components'
-import { isAdult } from './utils'
+import React from "react";
+import styled from "styled-components";
+import { isAdult } from "./utils";
 
-const Container = styled.div`
-`
+const Container = styled.div``;
 
-const LabelWrapper = styled.div`
-
-`
-
+const LabelWrapper = styled.div``;
 
 class Dropdown extends React.Component {
   constructor(props) {
-    super(props)
-    const selected = (isAdult(props.label)) ? 1 : 0
-    this.state = {
-      selected,
-    }
-    this.handleClick = this.handleClick.bind(this)
+    super(props);
+    this.handleClick = this.handleClick.bind(this);
   }
 
-  handleClick(event) {
-
-  }
+  handleClick(event) {}
 
   render() {
-    const {
-      label,
-      disabled,
-    } = this.props
-    console.log('disabled', disabled)
-
-
-    const labelInitialValueMapping = {
-      Adult: 1,
-      Children: 0,
-    }
+    const { label, disabled, value, handleChange } = this.props;
 
     const labelAgeRangeMapping = {
-      Adult: '(18+)',
-      Children: '(0-17)',
-    }
+      Adults: "(18+)",
+      Children: "(0-17)"
+    };
+    const adultOptions = [1, 2];
+    const childrenOptions = [0, 1, 2];
+    const options = isAdult(label) ? adultOptions : childrenOptions;
+    const ageRange = labelAgeRangeMapping[label];
 
-    const adultOptions = [1, 2]
-    const childrenOptions = [0, 1, 2]
-    const options = (isAdult(label)) ? adultOptions : childrenOptions
-    const ageRange = labelAgeRangeMapping[label]
-
-
-    const optionElements = options.map((value) => {
-      const attributes = { value }
-      if (labelInitialValueMapping[label] === value) {
-        attributes.selected = 'true' // add selected attribute
-      }
-      return (<option {...attributes}>{value}</option>)
-    })
+    const optionElements = options.map(option => {
+      return (
+        <option key={option} value={option}>
+          {option}
+        </option>
+      );
+    });
 
     return (
       <Container>
@@ -66,16 +43,18 @@ class Dropdown extends React.Component {
         </LabelWrapper>
         <select
           disabled={disabled}
+          value={value}
+          onChange={handleChange}
+          label={label}
         >
           {optionElements}
         </select>
       </Container>
-    )
+    );
   }
 }
 
 Dropdown.propTypes = {
-  dicePoolNumber: PropTypes.number.isRequired,
-}
+};
 
-export default Dropdown
+export default Dropdown;
