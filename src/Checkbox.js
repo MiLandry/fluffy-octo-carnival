@@ -19,7 +19,6 @@ class Checkbox extends Component {
 
   render() {
     const { label, isChecked } = this.props
-    // const { isChecked } = this.state
 
     return (
       <div className="checkbox">
